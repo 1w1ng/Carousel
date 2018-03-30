@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>轮播组件</title>
+  <style>
+    *{
+      margin:0;
+      padding: 0;
+    }
+    ul,li{
+      list-style:none;
+    }
+    a{
+      text-decoration: none;
+    }
+
+    .window{
+      position: relative;
+      width:730px;
+      height:335px;
+      margin:50px auto;
+      overflow:hidden;
+    }
+    .ct{
+      position:absolute;
+      overflow: hidden;
+      height: 335px;
+      top:0;
+    }
+    .ct::after{
+      content:'';
+      display: block;
+      clear:both;
+    }
+    .ct>li{
+      float:left;
+    }
+    .ct img{
+      width:730px;
+      height:335px;
+    }
+    .window>.arrow{
+      position: absolute;
+      top:50%;
+      transform: translateY(-50%);
+      padding: .2em;
+      font-size: 3em;
+      color:#dadadc;
+      cursor: pointer;
+    }
+    .arrow:hover{
+      color:#fff;
+    }
+    .pre{
+      left:15px;
+    }
+    .next{
+      right:15px;
+    }
+    .window>.bullets{
+      position: absolute;
+      display: flex;
+      width:300px;
+      height: 5px;
+      transform: translateX(-50%);
+      left: 50%;
+      bottom: 20px;
+      justify-content: space-between;
+    }
+    .bullets>a{
+      width:50px;
+      border-radius:5px;
+      background: rgba(255, 255, 255, .5);
+      cursor: pointer;
+    }
+    .bullets>.active{
+      background:#fff;
+    }
+  </style>
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+  <div class="window">
+    <ul class="ct">
+      <li><a href="#"><img src="http://p1.music.126.net/iIIXW9Y5iz6l9uufFxcZQg==/109951163211316506.jpg" alt=""></a></li>
+      <li><a href="#"><img src="http://p1.music.126.net/-6T0eIeFU2UNmmY-Makm2A==/109951163210477036.jpg" alt=""></a></li>
+      <li><a href="#"><img src="http://p1.music.126.net/RLyB0BZz9ia55ITDiFE_cA==/109951163211604702.jpg" alt=""></a></li>
+      <li><a href="#"><img src="http://p1.music.126.net/qcihbFSc-69K4J56vGSeWg==/109951163212576988.jpg" alt=""></a></li>
+    </ul>
+    <a href="#" class="pre arrow">&lt;</a>
+    <a href="#" class="next arrow">&gt;</a>
+    <div class="bullets">
+      <a class="active" href="#"></a>
+      <a href="#"></a>
+      <a href="#"></a>
+      <a href="#"></a>
+    </div>
+  </div>
+</body>
+<script>
+  function Carousel($ct){
+    this.$ct = $ct
+    this.init()
+    this.bind()
+    this.autoPlay()
+  }
+  Carousel.prototype = {
+    init(){
+      this.$imgCt = this.$ct.find('.ct')
+      this.$imgs = this.$imgCt.children()
+      this.$pre = this.$ct.find('.pre')
+      this.$next = this.$ct.find('.next')
+      this.$bullets = this.$ct.find('.bullets>a')
+      this.curPageIdx = 0
+      this.isAnimate = false
+      this.imgCount = this.$imgs.length
+      this.imgWidth = this.$imgs.width()
+
+      this.$imgCt.append(this.$imgs.first().clone()) //把第一个图片clone到最后
+      this.$imgCt.prepend(this.$imgs.last().clone()) //把最后一张图片clone到首部
+      this.$imgCt.width(this.imgWidth * (this.imgCount + 2)) //计算父容器总宽度
+      this.$imgCt.css({ left: -this.imgWidth }) //显示第一张
+    },
+    bind(){
+      let _this = this
+      //点击左右按钮轮播
+      this.$pre.on('click', function(e){
+        e.preventDefault()
+        _this.playPre(1)
+      })
+      this.$next.on('click', function(e){
+        e.preventDefault()
+        _this.playNext(1)
+      })
+      // 鼠标移入，停止轮播
+      this.$imgCt.on('mouseover',function(){
+        clearInterval(_this.clock)
+        console.log('stop')
+      }).on('mouseout',function(){
+        _this.autoPlay()
+        console.log('start')
+      })
+      this.$bullets.on('click',function(){
+        let index = $(this).index()
+        $(this).addClass('active').siblings().removeClass('active')
+        if (index > _this.curPageIdx) {
+          _this.playNext(index - _this.curPageIdx)
+        } else if (index < _this.curPageIdx) {
+          _this.playPre(_this.curPageIdx - index)
+        }
+      })
+    },
+    playNext(len){
+      let _this = this
+      if (this.isAnimate) return
+      this.isAnimate = true
+      this.$imgCt.animate({
+        left: '-=' + len * _this.imgWidth //原来基础上在减小宽度
+      }, function() {
+        _this.curPageIdx += len
+        if (_this.curPageIdx === _this.imgCount) {
+          _this.curPageIdx = 0
+          _this.$imgCt.css({ left: -_this.imgWidth }) //当curPageIdx加到数量最大值时,重设为0,并返回第一张
+        }
+        _this.setBullet()
+        _this.isAnimate = false
+      })
+    },
+    playPre(len){
+      let _this = this
+      if (this.isAnimate) return
+      this.isAnimate = true
+      this.$imgCt.animate({
+        left: '+=' + len * _this.imgWidth
+      }, function() {
+        _this.curPageIdx -= len
+        if (_this.curPageIdx < 0) {
+          _this.curPageIdx = _this.imgCount - 1
+          _this.$imgCt.css({ left: -_this.imgCount * _this.imgWidth })
+        }
+        _this.setBullet()
+        _this.isAnimate = false
+      })
+    },
+    //底部按钮点击效果设置
+    setBullet(){
+      let _this = this
+      this.$bullets.eq(_this.curPageIdx).addClass('active').siblings().removeClass('active')
+    },
+    // 轮播函数封装
+    autoPlay(){
+      let _this = this
+      // 自动向右轮播,时隔2s
+      _this.clock = setInterval(function () {
+        _this.playNext(1)
+      }, 2000)
+    }
+  }
+  var carousel = new Carousel($('.window').eq(0))
+</script>
+</html>
