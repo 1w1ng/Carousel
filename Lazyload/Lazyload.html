@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <title>懒加载组件</title>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    ul,li{
+      list-style: none;
+    }
+    .clearfix::after{
+      content:'';
+      display: block;
+      clear: both;
+    }
+    a{
+      text-decoration: none;
+    }
+    .layout{
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    .contents li{
+      float: left;
+      margin:10px 10px;
+    }
+    .contents li img{
+      width:500px;
+      height: 333px;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <ul class="contents clearfix">
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/1.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/2.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/3.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/4.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/5.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/6.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/7.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/8.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/9.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/10.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/11.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/12.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/13.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/14.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/15.jpg" alt="图片">
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="http://p6dtvovof.bkt.clouddn.com/333.jpg" data-src="http://p6dtvovof.bkt.clouddn.com/16.jpg" alt="图片">
+        </a>
+      </li>
+    </ul>
+  </div>
+</body>
+<script>
+  var exposure = (function(){
+    function Exposure($target, callback){
+      this.$target = $target
+      this.callback = callback
+      this.bind()
+      this.check()
+    }
+    Exposure.prototype = {
+      bind:function(){
+        var _this= this
+        $(window).on('scroll', function () {
+          _this.check()
+        })
+      },
+      check:function(){
+        if(this.show()){
+          this.callback(this.$target)
+        }
+      },
+      show:function(){
+        var $winHeight = $(window).height()
+        var $scroll = $(window).scrollTop()
+        var $targetOffset = this.$target.offset().top
+        var $targetHeight = this.$target.outerHeight(true)
+
+        if ($winHeight + $scroll > $targetOffset && $targetOffset + $targetHeight > $scroll) {
+          return true
+        } else {
+          return false
+        }
+      }
+    }
+
+    return{
+      init:function($target,callback){
+        $target.each(function(idx,target){
+          new Exposure($(target),callback)
+        })
+      }
+    }
+  })()
+
+  function html($node){
+    var url = $node.attr('data-src')
+    $node.attr('src',url)
+  }
+
+  exposure.init($('.contents img'),function($node){
+    html($node)
+  })
+</script>
+</html>
