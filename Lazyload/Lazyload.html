@@ -23,7 +23,7 @@
     a{
       text-decoration: none;
     }
-    .layout{
+    .contents{
       max-width: 1040px;
       margin: 0 auto;
     }
@@ -38,7 +38,6 @@
   </style>
 </head>
 <body>
-  <div class="layout">
     <ul class="contents clearfix">
       <li>
         <a href="#">
@@ -121,58 +120,60 @@
         </a>
       </li>
     </ul>
-  </div>
 </body>
 <script>
-  var exposure = (function(){
     function Exposure($target, callback){
       this.$target = $target
       this.callback = callback
       this.bind()
       this.check()
     }
-    Exposure.prototype = {
-      bind:function(){
-        var _this= this
-        $(window).on('scroll', function () {
-          _this.check()
-        })
-      },
-      check:function(){
-        if(this.show()){
-          this.callback(this.$target)
-        }
-      },
-      show:function(){
-        var $winHeight = $(window).height()
-        var $scroll = $(window).scrollTop()
-        var $targetOffset = this.$target.offset().top
-        var $targetHeight = this.$target.outerHeight(true)
+    Exposure.prototype.bind = function(){
+      var _this= this
+      $(window).on('scroll', function () {
+        _this.check()
+      })
+    }
 
-        if ($winHeight + $scroll > $targetOffset && $targetOffset + $targetHeight > $scroll) {
-          return true
-        } else {
-          return false
-        }
+    Exposure.prototype.check = function(){
+      if (this.show(this.$target)) {
+        this.callback(this.$target)
       }
     }
 
-    return{
-      init:function($target,callback){
-        $target.each(function(idx,target){
-          new Exposure($(target),callback)
-        })
+    Exposure.prototype.show = function(){
+      var windowHeight = $(window).height() //可视高度
+      var scrollTop = $(window).scrollTop() //滑动高度
+      var offsetTop = this.$target.offset().top //元素位置高度
+      var nodeHeight = this.$target.height()
+      //如果元素距顶部的距离小于 滚动距离+Window高度，并且高度小于滚动
+      if (windowHeight + scrollTop > offsetTop && scrollTop < offsetTop + nodeHeight) {
+        return true
+      } else {
+        return false
       }
     }
-  })()
 
-  function html($node){
-    var url = $node.attr('data-src')
-    $node.attr('src',url)
-  }
+    var Lazy = (function(){
+      return {
+        init: function ($targets, callback) {
+          //遍历img
+          $targets.each(function (idx, target) {
+            new Exposure($(target), callback);
+          })
+        },
+        one: function ($targets, callback) {
+        }
+      }
+    })()
 
-  exposure.init($('.contents img'),function($node){
-    html($node)
-  })
+    Lazy.init($('.contents img'),function($node){
+      showImg($node)
+    })
+
+    function showImg($img){
+      var imgUrl = $img.attr('data-src')
+      $img.attr('src',imgUrl)
+    }
 </script>
 </html>
