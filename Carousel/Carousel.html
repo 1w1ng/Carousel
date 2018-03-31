@@ -110,12 +110,13 @@
   Carousel.prototype = {
     init(){
       this.$imgCt = this.$ct.find('.ct')
-      this.$imgs = this.$imgCt.children()
+      this.$imgs = this.$imgCt.children() //获取图片的数量
       this.$pre = this.$ct.find('.pre')
       this.$next = this.$ct.find('.next')
       this.$bullets = this.$ct.find('.bullets>a')
-      this.curPageIdx = 0
-      this.isAnimate = false
+
+      this.curPageIdx = 0 //声明变量
+      this.isAnimate = false //加一个状态锁,定义变量
       this.imgCount = this.$imgs.length
       this.imgWidth = this.$imgs.width()
 
@@ -125,36 +126,35 @@
       this.$imgCt.css({ left: -this.imgWidth }) //显示第一张
     },
     bind(){
-      let _this = this
+      var _this = this
       //点击左右按钮轮播
-      this.$pre.on('click', function(e){
-        e.preventDefault()
+      this.$pre.on('click', function(){
         _this.playPre(1)
       })
-      this.$next.on('click', function(e){
-        e.preventDefault()
+      this.$next.on('click', function(){
         _this.playNext(1)
       })
       // 鼠标移入，停止轮播
-      this.$imgCt.on('mouseover',function(){
+      $('.window').on('mouseover',function(){
         clearInterval(_this.clock)
         console.log('stop')
-      }).on('mouseout',function(){
+      })
+      $('.window').on('mouseout',function(){
         _this.autoPlay()
         console.log('start')
       })
-      this.$bullets.on('click',function(){
-        let index = $(this).index()
+      this.$bullets.on('click',function(){ //点击选项卡
+        var index = $(this).index() // 获取下标
         $(this).addClass('active').siblings().removeClass('active')
-        if (index > _this.curPageIdx) {
+        if (index > _this.curPageIdx) { //如果点击的下标比轮播图片的下标大
           _this.playNext(index - _this.curPageIdx)
-        } else if (index < _this.curPageIdx) {
+        }else {
           _this.playPre(_this.curPageIdx - index)
         }
       })
     },
     playNext(len){
-      let _this = this
+      var _this = this
       if (this.isAnimate) return
       this.isAnimate = true
       this.$imgCt.animate({
@@ -188,17 +188,17 @@
     //底部按钮点击效果设置
     setBullet(){
       let _this = this
-      this.$bullets.eq(_this.curPageIdx).addClass('active').siblings().removeClass('active')
+      this.$bullets.removeClass('active').eq(_this.curPageIdx).addClass('active')
     },
     // 轮播函数封装
     autoPlay(){
-      let _this = this
+      var _this = this
       // 自动向右轮播,时隔2s
-      _this.clock = setInterval(function () {
+      this.clock = setInterval(function () {
         _this.playNext(1)
       }, 2000)
     }
   }
-  var carousel = new Carousel($('.window').eq(0))
+  new Carousel($('.window').eq(0))
 </script>
 </html>
